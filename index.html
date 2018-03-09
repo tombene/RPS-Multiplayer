@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<link rel="stylesheet" href="assets/css/bootstrap.min.css">
+	<link rel="stylesheet" href="assets/css/style.css">
+	<title>Document</title>
+</head>
+
+<body>
+	<nav class="navbar">
+		<div class="col-center">
+			<img src="assets/images/likeadults.jpg" alt="Lets Settle This Like Adults">
+		</div>
+	</nav>
+	<div class="container">
+
+		<div class="row game-status">
+			<div class="col-md-8">
+				<div class="input-group" id="user-name-group">
+					<input type="text" class="form-control" placeholder="Who Are You..." id="user-name">
+					<span class="input-group-btn">
+						<button class="btn btn-default" type="button" id="enter-game">Enter Game</button>
+					</span>
+				</div>
+				<!-- /input-group -->
+				<div class="row welcome hidden">Welcome!</div>
+				<div class="row status hidden"></div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-4 game-box">
+				<div class="game-div" id="player-1">
+					<h1 id="player-1-name">Waiting For Player 1</h1>
+					<div class="rps-image-container-1 hidden">
+						<img class="rps-images" src="assets/images/rock.jpg" id="rock1" data-choice="rock" alt="rock">
+						<img class="rps-images" src="assets/images/paper.jpg" id="paper1" data-choice="paper" alt="paper">
+						<img class="rps-images" src="assets/images/scissors.jpg" id="scissors1" data-choice="scissors" alt="scissors">
+					</div>
+				</div>
+			</div>
+			<div class="col-md-4 game-box">
+				<div class="game-div" id="results"></div>
+			</div>
+			<div class="col-md-4 game-box">
+				<div class="game-div" id="player-2">
+					<h1 id="player-2-name">Waiting For Player 2</h1>
+					<div class="rps-image-container-2 hidden">
+						<img class="rps-images" src="assets/images/rock.jpg" id="rock2" data-choice="rock" alt="rock">
+						<img class="rps-images" src="assets/images/paper.jpg" id="paper2" data-choice="paper" alt="paper">
+						<img class="rps-images" src="assets/images/scissors.jpg" id="scissors2" data-choice="scissors" alt="scissors">
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-8" id="message-container">
+				<div class="row message-display" id="message-window">
+					<div class="form-group">
+						<label for="comment">Verbal Abuse</label>
+						<textarea class="form-control" rows="5" id="comment"></textarea>
+					</div>
+				</div>
+				<div class="row message-input-box">
+					<div class="col-lg-6">
+						<div class="input-group">
+							<input type="text" class="form-control" placeholder="Say Something...">
+							<span class="input-group-btn">
+								<button class="btn btn-default" type="button" id="sling-message">Sling Abuse</button>
+							</span>
+						</div>
+						<!-- /input-group -->
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	
+	<script src="https://www.gstatic.com/firebasejs/4.10.1/firebase.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="assets/js/bootstrap.min.js"></script>
+	<script src="assets/js/rps.js"></script>
+
+</body>
+
+</html>

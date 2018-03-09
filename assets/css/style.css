@@ -1,0 +1,39 @@
+html{
+	background-color: black;
+}
+
+/* body{
+	background-color: black;
+} */
+
+.col-centered{
+	float: none;
+	margin: 0 auto;
+}
+
+.game-box{
+	height: 200px;
+	
+}
+
+.game-div{
+	border: 1px solid #3e3e36;
+	border-radius: 5px;
+	width: 90%;
+	height: 90%;
+	text-align: center;
+	background-color: white;
+}
+
+.game-status{
+	margin-bottom: 2%;
+}
+
+.rps{
+	border: 2px solid #ffffff;
+	border-radius: 5px;
+}
+
+.rps-images:hover{
+	cursor: pointer;
+}
