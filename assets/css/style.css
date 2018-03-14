@@ -12,8 +12,7 @@ html{
 }
 
 .game-box{
-	height: 200px;
-	
+	min-height: 200px;
 }
 
 .game-div{
@@ -37,3 +36,4 @@ html{
 .rps-images:hover{
 	cursor: pointer;
 }
+
