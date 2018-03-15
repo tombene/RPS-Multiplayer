@@ -37,3 +37,14 @@ html{
 	cursor: pointer;
 }
 
+.rps-images{
+	padding: 2%;
+}
+
+.wins{
+	position: relative;
+	float: left;
+}
+.losses{
+	float: right;
+}
