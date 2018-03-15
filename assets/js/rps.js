@@ -19,14 +19,17 @@ var database = firebase.database(),
 	battleReady = 0,
 	whoIsPlaying = 0,
 	waitTime = 2,
-	rounds = 0;
+	playerRef = database.ref('player/'),
+	messageRef = database.ref('messages/'),
+	rounds = 3;
 
 var player1 = {
 	playerKey: '',
 	playerChoice: '',
 	wins: 0,
 	losses: 0,
-	name
+	name: '',
+	ref: database.ref()
 }
 
 var player2 = {
@@ -34,7 +37,8 @@ var player2 = {
 	playerChoice: '',
 	wins: 0,
 	losses: 0,
-	name
+	name,
+	ref: database.ref()
 }
 
 //build the option buttons for user to select
@@ -58,8 +62,7 @@ $('#enter-game').on('click', function () {
 		playerNumber: player,
 		wins: 0,
 		losses: 0,
-		choice: '',
-		handsPlayed: 0
+		choice: ''
 	}).key;
 	// database.ref('player/' + currentPlayerKey + '/uid/').set(currentPlayerKey);
 	console.log('hide me' + currentPlayerKey);
@@ -72,24 +75,28 @@ $('#enter-game').on('click', function () {
 	$('#user-name').val('');
 });
 
-database.ref('player/').on("child_added", function (childSnapshot) {
-
-	whoIsPlaying = childSnapshot.val().playerNumber;
+playerRef.on("child_added", function (childSnapshot) {
+	whoIsPlaying = parseInt(childSnapshot.val().playerNumber);
+	console.log(whoIsPlaying);
 	if (whoIsPlaying === 1) {
 		player1.playerKey = childSnapshot.key;
 		player1.playerChoice = childSnapshot.val().choice;
 		player1.wins = childSnapshot.val().wins;
 		player1.losses = childSnapshot.val().losses;
 		player1.name = childSnapshot.val().playerName;
-		rounds++;
+		player1.ref = database.ref('player/' + childSnapshot.key);
+		// $('#game-message').text('Waiting for player 2');
 	} else {
 		player2.playerKey = childSnapshot.key;
 		player2.playerChoice = childSnapshot.val().choice;
 		player2.wins = childSnapshot.val().wins;
 		player2.losses = childSnapshot.val().losses;
 		player2.name = childSnapshot.val().playerName;
+		player2.ref = database.ref('player/' + childSnapshot.key);
+		// $('#game-message').text('Waiting for player 1');
 	}
-	
+	console.log(player1);
+	console.log(player2);
 	$('#wins1').text('Wins: ' + player1.wins);
 	$('#losses1').text('Losses: ' + player1.losses);
 	$('#wins2').text('Wins: ' + player2.wins);
@@ -108,44 +115,39 @@ database.ref('player/').on("child_added", function (childSnapshot) {
 		console.log('Game Full');
 		$('#user-name-group').attr('class', 'input-group hidden');
 	}
+	//when both players have made a choice
+
 	if (player1.playerChoice !== '' && player2.playerChoice !== '') {
+		$('#game-message').text(player1.name + ' : ' + player2.name);
+		var result = computeWinner(player1.playerChoice + player2.playerChoice);
+		setRPSResults(result);
 		showHands();
-		console.log('showhands');
 	}
 
 });
 
-// database.ref().once("value", function (data) {
-// 	whoIsPlaying = data.val().playerNumber;
-// 	console.log(data.val() + 'stuff is here');
-// 	if (whoIsPlaying === 1) {
-// 		player1.playerKey = data.key;
-// 		player1.playerChoice = data.val().choice;
-// 		player1.wins = data.val().wins;
-// 		player1.losses = data.val().losses;
-// 	} else {
-// 		player2.playerKey = data.key;
-// 		player2.playerChoice = data.val().choice;
-// 		player2.wins = data.val().wins;
-// 		player2.losses = data.val().losses;
-// 	}
-// 	if (parseInt(whoIsPlaying) < 3) {
-// 		player++;
-// 		// $('#player-' + whoIsPlaying).empty();
-// 		console.log('name' + data.val().playerName);
-// 		$('#player-' + whoIsPlaying + '-name').text(data.val().playerName);
+// database.ref('player/' + currentPlayerKey).on('child_changed', function (snapShot) {
+// 	console.log('changed ' + snapShot.val().playerNumber);
+// 	var playerNumber = parseInt(snapShot.val().playerNumber);
 
-// 		$('.rps-image-container-' + whoIsPlaying).attr('class', 'rps-image-container-' + whoIsPlaying);
-
-// 	} else {
-// 		console.log('Game Full');
-// 		$('#user-name-group').attr('class', 'input-group hidden');
+// 	if (playerNumber === 1) {
+// 		player1.playerKey = snapShot.key;
+// 		player1.playerChoice = snapShot.val().choice;
+// 		player1.wins = snapShot.val().wins;
+// 		player1.losses = snapShot.val().losses;
+// 		// $('#game-message').text('Waiting for player 2');
+// 	} else if (playerNumber === 2) {
+// 		player2.playerKey = snapShot.key;
+// 		player2.playerChoice = snapShot.val().choice;
+// 		player2.wins = snapShot.val().wins;
+// 		player2.losses = snapShot.val().losses;
+// 		// $('#game-message').text('Waiting for player 1');
 // 	}
-// 	if(data.val().choice !== ''){
-// 		console.log(data.val().choice);
-// 		hideHands(data.val().choice);
+// 	if (player1.playerChoice !== '' && player2.playerChoice !== '') {
+// 		var result = computeWinner(player1.playerChoice + player2.playerChoice);
+// 		setRPSResults(result);
+// 		showHands();
 // 	}
-
 // });
 
 function setRPSResults(winner) {
@@ -157,6 +159,7 @@ function setRPSResults(winner) {
 		player1.wins++;
 		player2.losses++;
 		database.ref('player/' + player1.playerKey).update({ wins: player1.wins });
+		database.ref('player/' + player2.playerKey).update({ losses: player2.losses });
 		divGame.text(player1.name + ' wins!');
 		$('#wins1').text('Wins: ' + player1.wins);
 		$('#losses1').text('Losses: ' + player1.losses);
@@ -165,6 +168,7 @@ function setRPSResults(winner) {
 		player2.wins++;
 		player1.losses++;
 		database.ref('player/' + player2.playerKey).update({ wins: player2.wins });
+		database.ref('player/' + player1.playerKey).update({ losses: player1.losses });
 		divGame.text(player2.name + ' wins!');
 		$('#wins2').text('Wins: ' + player2.wins);
 		$('#losses2').text('Losses: ' + player2.losses);
@@ -173,44 +177,82 @@ function setRPSResults(winner) {
 	console.log(player2);
 	// console.log(database.ref('player/' + player2.playerKey ).update({wins: player1.wins++}));
 	$('#results').append(divGame);
-	
+	rounds--;
+	if(rounds < 0){
+		startOver();
+	}
+
+}
+
+function startOver(){
+	player = 1,
+	rps = ['rock', 'paper', 'scissors'],
+	currentPlayer = '',
+	currentPlayerKey = '',
+	battleReady = 0,
+	whoIsPlaying = 0,
+	waitTime = 2,
+	playerRef = database.ref('player/'),
+	messageRef = database.ref('messages/'),
+	rounds = 3;
+
+	player1 = {
+	playerKey: '',
+	playerChoice: '',
+	wins: 0,
+	losses: 0,
+	name: '',
+	ref: database.ref()
+}
+
+	player2 = {
+	playerKey: '',
+	playerChoice: '',
+	wins: 0,
+	losses: 0,
+	name,
+	ref: database.ref()
+}
+
+$('#game-messages').empty();
 }
 
 $(document).on('click', ".rps-images", function () {
 	console.log($(this).attr('data-choice'));
 	selection = $(this).attr('data-choice');
 	var selectionId = $(this).attr('id').replace(selection, '');
+	hideHands(selection, selectionId);
 	// database.ref(currentPlayer);
-	console.log(currentPlayerKey);
+	console.log(currentPlayerKey + ' selection ' + selection);
 	database.ref('player/' + currentPlayerKey).update({ choice: selection });
 
 	//when a choice happens do the following:
+	var howmany = 0;
 	database.ref('player/').on('child_added', function (snapShot) {
-
+		howmany++;
 		var playerNumber = parseInt(snapShot.val().playerNumber);
+		console.log(howmany + ' how many ' + playerNumber);
 		if (playerNumber === 1) {
 			player1.playerKey = snapShot.key;
 			player1.playerChoice = snapShot.val().choice;
 			player1.wins = snapShot.val().wins;
 			player1.losses = snapShot.val().losses;
-			$('#game-message').text('Waiting for player 2');
-		} else {
+			// $('#game-message').text('Waiting for player 2');
+		} else if (playerNumber === 2) {
 			player2.playerKey = snapShot.key;
 			player2.playerChoice = snapShot.val().choice;
 			player2.wins = snapShot.val().wins;
 			player2.losses = snapShot.val().losses;
-			$('#game-message').text('Waiting for player 1');
+			// $('#game-message').text('Waiting for player 1');
 		}
-
+		if (player1.playerChoice !== '' && player2.playerChoice !== '') {
+			var result = computeWinner(player1.playerChoice + player2.playerChoice);
+			setRPSResults(result);
+			showHands();
+		}
 	});
-	hideHands(selection, selectionId);
-	console.log(player1.playerChoice + ' ' + player2.playerChoice);
-	if (player1.playerChoice !== '' && player2.playerChoice !== '') {
-		var result = computeWinner(player1.playerChoice + player2.playerChoice);
-		setRPSResults(result);
-		showHands();
-	}
-	database.ref('/player/' +currentPlayerKey+ '/handsPlayed/').set(rounds);
+
+
 });
 
 function hideHands(selection, selectionId) {
@@ -241,6 +283,11 @@ function showHands() {
 			$('#rock2').attr('class', 'rps-images');
 			$('#paper2').attr('class', 'rps-images');
 			$('#scissors2').attr('class', 'rps-images');
+
+			player1.choice = '';
+			player2.choice = '';
+			database.ref('player/' + player1.playerKey).update({ choice: '' });
+			database.ref('player/' + player2.playerKey + '/choice/').set('');
 			clearInterval(intervalId);
 			waitTime = 3;
 		}
@@ -272,3 +319,35 @@ function computeWinner(compare) {
 			break;
 	}
 }
+
+$('#sling-message').on('click', function(event){
+	event.preventDefault(event);
+	console.log('message');
+	console.log(currentPlayerKey + ' ' + player1.key);
+	if(currentPlayerKey === player1.key){
+		messageRef.update({message: $('#say-something').val()});
+	}else if(currentPlayerKey === player2.key){
+		messageRef.update({message: $('#say-something').val()});
+	}else{
+		//display warning if they are not an active player
+		warningId = setInterval(function () {
+			waitTime--;
+			if (waitTime < 0) {
+				$('#game-message').empty();
+				clearInterval(warningId);
+				waitTime = 3;
+			}else{
+				$('#game-message').text('Sign In First');
+			}
+		}, 1000);
+		
+	}
+	
+})
+
+messageRef.on('child_added',function(snapShot){
+	console.log('text box');
+	$('#comment').append('<p>' + snapShot.val().message + '</p>');
+});
+
+
