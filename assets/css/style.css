@@ -48,3 +48,15 @@ html{
 .losses{
 	float: right;
 }
+
+#comment{
+	height: 200px;
+	width: 90%;
+	overflow: auto;
+	border: 1px solid #3e3e36;
+	border-radius: 5px;
+}
+
+.message-input-box{
+	padding-bottom: 5%;
+}

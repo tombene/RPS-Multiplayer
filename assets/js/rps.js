@@ -20,7 +20,7 @@ var database = firebase.database(),
 	whoIsPlaying = 0,
 	waitTime = 2,
 	playerRef = database.ref('player/'),
-	messageRef = database.ref('messages/'),
+	messageRef = database.ref('/messages'),
 	rounds = 3;
 
 var player1 = {
@@ -113,6 +113,8 @@ playerRef.on("value", function (valueSnapShot) {
 		// console.log(childSnapshot.key);
 		// console.log(childSnapshot.val());
 		whoIsPlaying = parseInt(childSnapshot.val().playerNumber);
+		console.log(player1);
+		console.log(player2);
 		updateLocalPlayerValues(childSnapshot);
 		console.log(player1);
 		console.log(player2);
@@ -219,42 +221,15 @@ function startOver() {
 	$('#game-messages').empty();
 }
 
+//when a user clicks on an image and makes a choice
 $(document).on('click', ".rps-images", function () {
 	console.log($(this).attr('data-choice'));
 	selection = $(this).attr('data-choice');
 	var selectionId = $(this).attr('id').replace(selection, '');
 	hideHands(selection, selectionId);
-	// database.ref(currentPlayer);
+
 	console.log(currentPlayerKey + ' selection ' + selection);
 	database.ref('player/' + currentPlayerKey).update({ choice: selection });
-
-	//when a choice happens do the following:
-	// var howmany = 0;
-	// database.ref('player/').on('child_added', function (snapShot) {
-	// 	howmany++;
-	// 	var playerNumber = parseInt(snapShot.val().playerNumber);
-	// 	console.log(howmany + ' how many ' + playerNumber);
-	// 	if (playerNumber === 1) {
-	// 		player1.playerKey = snapShot.key;
-	// 		player1.playerChoice = snapShot.val().choice;
-	// 		player1.wins = snapShot.val().wins;
-	// 		player1.losses = snapShot.val().losses;
-	// 		// $('#game-message').text('Waiting for player 2');
-	// 	} else if (playerNumber === 2) {
-	// 		player2.playerKey = snapShot.key;
-	// 		player2.playerChoice = snapShot.val().choice;
-	// 		player2.wins = snapShot.val().wins;
-	// 		player2.losses = snapShot.val().losses;
-	// 		// $('#game-message').text('Waiting for player 1');
-	// 	}
-	// 	if (player1.playerChoice !== '' && player2.playerChoice !== '') {
-	// 		var result = computeWinner(player1.playerChoice + player2.playerChoice);
-	// 		setRPSResults(result);
-	// 		showHands();
-	// 	}
-	// });
-
-
 });
 
 function hideHands(selection, selectionId) {
@@ -324,7 +299,7 @@ function computeWinner(compare) {
 
 function updateLocalPlayerValues(theSnapShot) {
 	var whoIsPlaying = parseInt(theSnapShot.val().playerNumber);
-	console.log(whoIsPlaying);
+	console.log(whoIsPlaying + " player ", theSnapShot);
 	if (whoIsPlaying === 1) {
 		player1.playerKey = theSnapShot.key;
 		player1.playerChoice = theSnapShot.val().choice;
@@ -342,20 +317,29 @@ function updateLocalPlayerValues(theSnapShot) {
 		player2.ref = database.ref('player/' + theSnapShot.key);
 		// $('#game-message').text('Waiting for player 1');
 	}
-	console.log(player1);
-	console.log(player2);
 }
 
-//****************** Start Of Messaging Part ***************************/
+//****************** Start Of Messaging ***************************/
 
 $('#sling-message').on('click', function (event) {
 	event.preventDefault(event);
+	var theMessage = $('#say-something').val();
 	console.log('message');
-	console.log(currentPlayerKey + ' ' + player1.key);
-	if (currentPlayerKey === player1.key) {
-		messageRef.update({ message: $('#say-something').val() });
-	} else if (currentPlayerKey === player2.key) {
-		messageRef.update({ message: $('#say-something').val() });
+	console.log(currentPlayerKey + ' ' + player1.playerKey);
+	if (currentPlayerKey === player1.playerKey) {
+		messageRef.push({ 
+			name: player1.name,
+      message: theMessage,
+      time: firebase.database.ServerValue.TIMESTAMP,
+      idNum: 1
+		});
+	} else if (currentPlayerKey === player2.playerKey) {
+		messageRef.push({ 
+			name: player2.name,
+      message: theMessage,
+      time: firebase.database.ServerValue.TIMESTAMP,
+      idNum: 2
+		 });
 	} else {
 		//display warning if they are not an active player
 		warningId = setInterval(function () {
@@ -370,12 +354,10 @@ $('#sling-message').on('click', function (event) {
 		}, 1000);
 
 	}
-
+	$('#say-something').val('');
 })
 
-messageRef.on('child_added', function (snapShot) {
-	console.log('text box');
-	$('#comment').append('<p>' + snapShot.val().message + '</p>');
+messageRef.orderByChild('date').on('child_added', function (snapShot) {
+	$('#comment').append('<p>' + snapShot.val().name + ': ' + snapShot.val().message + '</p>');
 });
-
 

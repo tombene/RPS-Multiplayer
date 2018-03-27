@@ -20,12 +20,13 @@
 
 		<div class="row game-status">
 			<div class="col-md-8">
-				<div class="input-group" id="user-name-group">
+				<form action="" method="post" class="input-group" id="user-name-group">
 					<input type="text" class="form-control" placeholder="Who Are You..." id="user-name">
 					<span class="input-group-btn">
-						<button class="btn btn-default" type="button" id="enter-game">Enter Game</button>
+						<!-- <button class="btn btn-default" type="button" id="enter-game">Enter Game</button> -->
+						<input class="btn btn-default" type="submit" value="Enter Game" id="enter-game">
 					</span>
-				</div>
+				</form>
 				<!-- /input-group -->
 				<div class="row welcome hidden">Welcome!</div>
 				<div class="row status hidden"></div>
@@ -66,7 +67,7 @@
 				<div class="row message-display" id="message-window">
 					<div class="form-group">
 						<label for="comment">Verbal Abuse</label>
-						<textarea class="form-control" rows="5" id="comment"></textarea>
+						<div id="comment"></div>
 					</div>
 				</div>
 				<div class="row message-input-box">
