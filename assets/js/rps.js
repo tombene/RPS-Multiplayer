@@ -271,6 +271,7 @@ function showHands() {
 	}, 1000);
 }
 
+//Get the winning hand with player one on the left side and player 2 on right
 function computeWinner(compare) {
 	switch (compare) {
 		case 'rockpaper':
@@ -306,16 +307,12 @@ function updateLocalPlayerValues(theSnapShot) {
 		player1.wins = theSnapShot.val().wins;
 		player1.losses = theSnapShot.val().losses;
 		player1.name = theSnapShot.val().playerName;
-		player1.ref = database.ref('player/' + theSnapShot.key);
-		// $('#game-message').text('Waiting for player 2');
 	} else {
 		player2.playerKey = theSnapShot.key;
 		player2.playerChoice = theSnapShot.val().choice;
 		player2.wins = theSnapShot.val().wins;
 		player2.losses = theSnapShot.val().losses;
 		player2.name = theSnapShot.val().playerName;
-		player2.ref = database.ref('player/' + theSnapShot.key);
-		// $('#game-message').text('Waiting for player 1');
 	}
 }
 
@@ -325,19 +322,19 @@ $('#sling-message').on('click', function (event) {
 	event.preventDefault(event);
 	var theMessage = $('#say-something').val();
 	console.log('message');
-	console.log(currentPlayerKey + ' ' + player1.playerKey);
-	if (currentPlayerKey === player1.playerKey) {
+	console.log(currentPlayerKey + ' -1' + player1.playerKey + ' -2' + player2.playerKey);
+	if (currentPlayerKey === player1.playerKey && (player1.playerKey !== '')) {
 		messageRef.push({ 
 			name: player1.name,
       message: theMessage,
-      time: firebase.database.ServerValue.TIMESTAMP,
+      date: firebase.database.ServerValue.TIMESTAMP,
       idNum: 1
 		});
-	} else if (currentPlayerKey === player2.playerKey) {
+	} else if ((currentPlayerKey === player2.playerKey) && (player2.playerKey !== '')) {
 		messageRef.push({ 
 			name: player2.name,
       message: theMessage,
-      time: firebase.database.ServerValue.TIMESTAMP,
+      date: firebase.database.ServerValue.TIMESTAMP,
       idNum: 2
 		 });
 	} else {
